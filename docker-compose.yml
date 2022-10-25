@@ -1,0 +1,14 @@
+# cat docker-compose.yml 
+version: '3'
+
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg12
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - /data/timescaledb:/var/lib/postgresql/data
