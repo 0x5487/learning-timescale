@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"candlestick/cmd"
+
+	_ "github.com/lib/pq"
+)
 
 func main() {
-	fmt.Print("hello")
+	cmd.Execute()
 }

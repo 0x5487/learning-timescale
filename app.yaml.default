@@ -1,0 +1,11 @@
+logging:
+  - id: clog
+    type: console
+    min_level: debug
+
+timescaledb:
+  connection_string: postgresql://<username>:<password>@<database_ip>/<database_name>?sslmode=disable
+  max_idle_conns: 10
+  max_open_conns: 30
+  conn_max_idle_time: 300ms
+  conn_max_life_time: 5s
