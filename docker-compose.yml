@@ -10,5 +10,5 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-    volumes:
-      - ${LOCAL_WORKSPACE_FOLDER}/data/timescaledb:/var/lib/postgresql/data
+    # volumes:
+    #   - ${LOCAL_WORKSPACE_FOLDER}/data/timescaledb:/var/lib/postgresql/data

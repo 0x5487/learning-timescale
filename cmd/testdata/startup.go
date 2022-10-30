@@ -2,11 +2,19 @@ package testdata
 
 import (
 	"candlestick/internal/pkg/initialize"
+	"candlestick/pkg/domain"
 	"context"
+	"encoding/csv"
 	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/nite-coder/blackbear/pkg/log"
+	"github.com/shopspring/decimal"
 	"github.com/spf13/cobra"
 )
 
@@ -52,10 +60,13 @@ func startup(ctx context.Context) error {
 	}
 
 	// timescaledb
-	_, err = initialize.TimescaleDB()
+	_, err = initialize.TimescaleDB(ctx)
 	if err != nil {
 		return err
 	}
+
+	// load test data
+	_, err = load()
 
 	log.Info("test data !!!")
 	return nil
@@ -77,4 +88,57 @@ func shutdown(ctx context.Context) error {
 			return nil
 		}
 	}
+}
+
+func load() ([]*domain.Trade, error) {
+	log.Info("loading test data...")
+
+	pwd, _ := os.Getwd()
+	path := filepath.Join(pwd, "test", "btc_usdt.csv")
+
+	file, err := os.OpenFile(path, os.O_RDONLY, 0777) // os.O_RDONLY 表示只讀、0777 表示(owner/group/other)權限
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*domain.Trade, 1000000)
+
+	// read
+	r := csv.NewReader(file)
+	r.Comma = ',' // 以何種字元作分隔，預設為`,`。所以這裡可拿掉這行
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		f, err := strconv.ParseFloat(strings.TrimSpace(record[0]), 64)
+		if err != nil {
+			log.Warnf("can't parse time column: %s", record[0])
+			continue
+		}
+
+		t := f * 1000000
+
+		side, err := strconv.Atoi(strings.TrimSpace(record[4]))
+		if err != nil {
+			log.Warnf("can't parse side column: %s", record[4])
+			continue
+		}
+
+		trade := &domain.Trade{
+			Time:    time.UnixMicro(int64(t)),
+			OrderID: strings.TrimSpace(record[1]),
+			Price:   decimal.RequireFromString(strings.TrimSpace(record[2])),
+			Size:    decimal.RequireFromString(strings.TrimSpace(record[3])),
+			Side:    int8(side),
+		}
+		result = append(result, trade)
+	}
+
+	log.Infof("loaded: %d", len(result))
+	return result, nil
 }

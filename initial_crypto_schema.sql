@@ -4,8 +4,7 @@ CREATE TABLE public.trade (
 	market varchar NOT NULL DEFAULT ''::character varying,
     side int2 NOT NULL DEFAULT 0,
 	price numeric NOT NULL DEFAULT 0,
-	"size" numeric NOT NULL DEFAULT 0,
-	vol numeric NOT NULL DEFAULT 0
+	"size" numeric NOT NULL DEFAULT 0
 );
 
 CREATE INDEX trade_market_idx ON public.trade USING btree (market, "time" DESC);
