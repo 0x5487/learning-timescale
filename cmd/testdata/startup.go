@@ -3,6 +3,7 @@ package testdata
 import (
 	"candlestick/internal/pkg/initialize"
 	"candlestick/pkg/domain"
+	"candlestick/pkg/domain/market/repository/timescaledb"
 	"context"
 	"encoding/csv"
 	"fmt"
@@ -60,13 +61,22 @@ func startup(ctx context.Context) error {
 	}
 
 	// timescaledb
-	_, err = initialize.TimescaleDB(ctx)
+	db, err := initialize.TimescaleDB(ctx)
 	if err != nil {
 		return err
 	}
 
 	// load test data
-	_, err = load()
+	trades, err := load()
+	if err != nil {
+		return err
+	}
+
+	tradeRepo := timescaledb.NewTradeRepo(db)
+	err = tradeRepo.BulkInsert(ctx, trades)
+	if err != nil {
+		return err
+	}
 
 	log.Info("test data !!!")
 	return nil
@@ -101,7 +111,8 @@ func load() ([]*domain.Trade, error) {
 		return nil, err
 	}
 
-	result := make([]*domain.Trade, 1000000)
+	//result := make([]*domain.Trade, 4000000)
+	result := []*domain.Trade{}
 
 	// read
 	r := csv.NewReader(file)
@@ -140,5 +151,6 @@ func load() ([]*domain.Trade, error) {
 	}
 
 	log.Infof("loaded: %d", len(result))
+	log.Infof("trade ex: %#v", result[2])
 	return result, nil
 }

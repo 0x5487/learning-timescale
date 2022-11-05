@@ -4,6 +4,7 @@ import (
 	"candlestick/pkg/domain"
 	"context"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -11,22 +12,29 @@ type TradeRepo struct {
 	db *pgxpool.Pool
 }
 
-func NewTradeRepo() *TradeRepo {
-	return &TradeRepo{}
+func NewTradeRepo(db *pgxpool.Pool) *TradeRepo {
+	return &TradeRepo{
+		db: db,
+	}
 }
 
-func (repo *TradeRepo) Bulk(ctx context.Context, trades []*domain.Trade) error {
+func (repo *TradeRepo) BulkInsert(ctx context.Context, trades []*domain.Trade) error {
 
-	// rows := [][]interface{}{
-	// 	{"John", "Smith", int32(36)},
-	// 	{"Jane", "Doe", int32(29)},
-	// }
+	rows := [][]interface{}{}
 
-	// copyCount, err := repo.db.CopyFrom(
-	// 	pgx.Identifier{"trade"},
-	// 	[]string{"first_name", "last_name", "age"},
-	// 	pgx.CopyFromRows(rows),
-	// )
+	for _, trade := range trades {
+		rows = append(rows, []interface{}{trade.Time, trade.OrderID, trade.Market, trade.Side, trade.Price, trade.Size})
+	}
+
+	_, err := repo.db.CopyFrom(ctx,
+		pgx.Identifier{"trade"},
+		[]string{"time", "order_id", "market", "side", "price", "size"},
+		pgx.CopyFromRows(rows),
+	)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
