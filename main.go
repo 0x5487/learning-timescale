@@ -1,7 +1,7 @@
 package main
 
 import (
-	"candlestick/cmd"
+	"learning-timescaledb/cmd"
 
 	_ "github.com/jackc/pgx/v5"
 )

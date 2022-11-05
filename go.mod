@@ -1,4 +1,4 @@
-module candlestick
+module learning-timescaledb
 
 go 1.19
 

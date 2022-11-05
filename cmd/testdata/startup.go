@@ -1,13 +1,13 @@
 package testdata
 
 import (
-	"candlestick/internal/pkg/initialize"
-	"candlestick/pkg/domain"
-	"candlestick/pkg/domain/market/repository/timescaledb"
 	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
+	"learning-timescaledb/internal/pkg/initialize"
+	"learning-timescaledb/pkg/domain"
+	"learning-timescaledb/pkg/domain/market/repository/timescaledb"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -73,7 +73,7 @@ func startup(ctx context.Context) error {
 	}
 
 	tradeRepo := timescaledb.NewTradeRepo(db)
-	err = tradeRepo.BulkInsert(ctx, trades)
+	err = tradeRepo.BulkInsert(ctx, trades, 10000)
 	if err != nil {
 		return err
 	}
@@ -143,6 +143,7 @@ func load() ([]*domain.Trade, error) {
 		trade := &domain.Trade{
 			Time:    time.UnixMicro(int64(t)),
 			OrderID: strings.TrimSpace(record[1]),
+			Market:  "BTC_USDT",
 			Price:   decimal.RequireFromString(strings.TrimSpace(record[2])),
 			Size:    decimal.RequireFromString(strings.TrimSpace(record[3])),
 			Side:    int8(side),
@@ -151,6 +152,6 @@ func load() ([]*domain.Trade, error) {
 	}
 
 	log.Infof("loaded: %d", len(result))
-	log.Infof("trade ex: %#v", result[2])
+
 	return result, nil
 }

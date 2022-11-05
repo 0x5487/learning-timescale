@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"candlestick/cmd/testdata"
+	"learning-timescaledb/cmd/testdata"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/nite-coder/blackbear/pkg/log"

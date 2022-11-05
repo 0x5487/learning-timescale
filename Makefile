@@ -10,7 +10,7 @@ LDFLAGS = -ldflags "-X $(APP)/internal/pkg/version.Version=$(VERSION) -X $(APP)/
 
 
 testdata:
-	go build && ./candlestick testdata
+	go build -o candlestick && ./candlestick testdata
 
 release: clean
 	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o ./bin/$(APP)-$(VERSION)
