@@ -48,3 +48,7 @@ func (repo *TradeRepo) BulkInsert(ctx context.Context, trades []*domain.Trade, b
 
 	return nil
 }
+
+func (repo *TradeRepo) Candlesticks(ctx context.Context, opts *domain.FindCandlestickOptions) ([]*domain.Candlestick, error) {
+	return nil, nil
+}

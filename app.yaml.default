@@ -9,3 +9,8 @@ timescaledb:
   max_open_conns: 30
   conn_max_idle_time: 300ms
   conn_max_life_time: 5s
+
+
+fiber:
+  bind: :80
+  prefork: false

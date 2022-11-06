@@ -15,11 +15,11 @@ const (
 )
 
 type Trade struct {
-	Time    time.Time
-	ID string
-	Market  string
-	Side    Side
-	Price   decimal.Decimal
-	Size    decimal.Decimal
-	Volume  decimal.Decimal
+	Time   time.Time
+	ID     string
+	Market string
+	Side   Side
+	Price  decimal.Decimal
+	Size   decimal.Decimal
+	Volume decimal.Decimal
 }
