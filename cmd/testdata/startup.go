@@ -7,7 +7,7 @@ import (
 	"io"
 	"learning-timescaledb/internal/pkg/initialize"
 	"learning-timescaledb/pkg/domain"
-	"learning-timescaledb/pkg/domain/market/repository/timescaledb"
+	"learning-timescaledb/pkg/market/repository/timescaledb"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -73,12 +73,15 @@ func startup(ctx context.Context) error {
 	}
 
 	tradeRepo := timescaledb.NewTradeRepo(db)
+
+	now := time.Now()
 	err = tradeRepo.BulkInsert(ctx, trades, 10000)
 	if err != nil {
 		return err
 	}
 
-	log.Info("test data !!!")
+	duration := time.Since(now)
+	log.Str("duration", duration.String()).Info("done!!")
 	return nil
 }
 
@@ -111,7 +114,7 @@ func load() ([]*domain.Trade, error) {
 		return nil, err
 	}
 
-	//result := make([]*domain.Trade, 4000000)
+	//result := make([]domain.Trade, 4000000)
 	result := []*domain.Trade{}
 
 	// read
@@ -141,13 +144,16 @@ func load() ([]*domain.Trade, error) {
 		}
 
 		trade := &domain.Trade{
-			Time:    time.UnixMicro(int64(t)),
-			OrderID: strings.TrimSpace(record[1]),
-			Market:  "BTC_USDT",
-			Price:   decimal.RequireFromString(strings.TrimSpace(record[2])),
-			Size:    decimal.RequireFromString(strings.TrimSpace(record[3])),
-			Side:    int8(side),
+			Time:   time.UnixMicro(int64(t)),
+			ID:     strings.TrimSpace(record[1]),
+			Market: "BTC_USDT",
+			Price:  decimal.RequireFromString(strings.TrimSpace(record[2])),
+			Size:   decimal.RequireFromString(strings.TrimSpace(record[3])),
+			Side:   domain.Side(side),
 		}
+
+		trade.Volume = trade.Price.Mul(trade.Size)
+
 		result = append(result, trade)
 	}
 

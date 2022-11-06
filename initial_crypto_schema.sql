@@ -1,13 +1,14 @@
 CREATE TABLE public.trade (
 	"time" timestamp NOT NULL DEFAULT now(),
-	order_id varchar NOT NULL DEFAULT ''::character varying,
+	id varchar NOT NULL DEFAULT ''::character varying,
 	market varchar NOT NULL DEFAULT ''::character varying,
 	side int2 NOT NULL DEFAULT 0,
 	price numeric(20, 8) NOT NULL DEFAULT 0,
-	"size" numeric(20, 8) NOT NULL DEFAULT 0
+	"size" numeric(20, 8) NOT NULL DEFAULT 0,
+  "volume" numeric(20, 8) NOT NULL DEFAULT 0,
+  CONSTRAINT pkey_trade PRIMARY KEY ("time", id)
 );
-
-CREATE INDEX trade_market_idx ON public.trade USING btree (market, "time" DESC);
+CREATE INDEX idx_trade_market ON public.trade USING btree ("time" DESC, market);
 SELECT create_hypertable('public.trade', 'time', create_default_indexes=>FALSE, chunk_time_interval=>INTERVAL '1 day');
 
 
@@ -20,7 +21,9 @@ SELECT
   max(price) AS high,
   first(price, time) AS open,
   last(price, time) AS close,
-  min(price) AS low
+  min(price) AS low,
+  sum(size) as vol_base,
+  sum(volume) as vol_quote
 FROM trade
 GROUP BY bucket, market
 WITH NO DATA;
@@ -43,7 +46,9 @@ SELECT
   max(price) AS high,
   first(price, time) AS open,
   last(price, time) AS close,
-  min(price) AS low
+  min(price) AS low,
+  sum(size) as vol_base,
+  sum(volume) as vol_quote
 FROM trade
 GROUP BY bucket, market
 WITH NO DATA;
@@ -65,7 +70,9 @@ SELECT
   max(price) AS high,
   first(price, time) AS open,
   last(price, time) AS close,
-  min(price) AS low
+  min(price) AS low,
+  sum(size) as vol_base,
+  sum(volume) as vol_quote
 FROM trade
 GROUP BY bucket, market
 WITH NO DATA;

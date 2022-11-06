@@ -25,13 +25,14 @@ func (repo *TradeRepo) BulkInsert(ctx context.Context, trades []*domain.Trade, b
 	rows := [][]interface{}{}
 
 	for idx, trade := range trades {
+		idx++
 
-		rows = append(rows, []interface{}{trade.Time, trade.OrderID, trade.Market, trade.Side, trade.Price, trade.Size})
+		rows = append(rows, []interface{}{trade.Time, trade.ID, trade.Market, trade.Side, trade.Price, trade.Size, trade.Volume})
 
-		if idx%int(batchSize) == 0 || idx == len(trades)-1 {
+		if idx%int(batchSize) == 0 || idx == len(trades) {
 			_, err := repo.db.CopyFrom(ctx,
 				pgx.Identifier{"trade"},
-				[]string{"time", "order_id", "market", "side", "price", "size"},
+				[]string{"time", "id", "market", "side", "price", "size", "volume"},
 				pgx.CopyFromRows(rows),
 			)
 
@@ -41,7 +42,7 @@ func (repo *TradeRepo) BulkInsert(ctx context.Context, trades []*domain.Trade, b
 				return err
 			}
 
-			logger.Debugf("write count: %d", idx+1)
+			logger.Debugf("write count: %d", idx)
 		}
 	}
 
