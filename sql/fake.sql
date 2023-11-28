@@ -1,0 +1,1 @@
+INSERT INTO public.trade ("time", id, market, side, price, "size", volume) VALUES (now(), 'T1', 'BTC/USDT', 1, 21000, 1, 100);

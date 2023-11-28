@@ -33,3 +33,11 @@ from stock_candlestick_1m scm
 where symbol = 'AAPL'
 order by bucket desc
 limit 1
+
+## database mangagement
+
+1. 列出 hypertable
+
+```sql
+SELECT * FROM timescaledb_information.hypertables
+```
